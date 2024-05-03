@@ -1,0 +1,154 @@
+#!/bin/bash
+#      
+###########################################################################
+#   
+cd 1_min
+mpirun -np 4 $AMBERHOME/bin/sander.MPI -O -i minR_PME_cut10.in \
+                                        -o minR_PME_cut10.out  \
+                                        -p input.prmtop \
+                                        -c input.inpcrd \
+                                        -r mem_minR_PME_cut10.rst \
+                                        -ref input.inpcrd \
+                                        -e mem_minR_PME_cut10.ene 
+
+$AMBERHOME/bin/ambpdb -p input.prmtop -c mem_minR_PME_cut10.rst > mem_minR_PME_cut10.pdb
+
+cd ..
+cd 2_min
+cp ../1_min/mem_minR_PME_cut10.rst .
+
+mpirun -np 4 $AMBERHOME/bin/sander.MPI -O -i min_PME_cut10.in \
+                                        -o min_PME_cut10.out  \
+                                        -p input.prmtop \
+                                        -c mem_minR_PME_cut10.rst \
+					-ref mem_minR_PME_cut10.rst \
+                                        -r mem_min_PME_cut10.rst \
+                                        -e mem_minR_PME_cut10.ene 
+
+$AMBERHOME/bin/ambpdb -p input.prmtop -c mem_min_PME_cut10.rst > mem_min_PME_cut10.pdb
+
+cd ..
+cd 3a_heating
+cp ../2_min/mem_min_PME_cut10.rst .
+$AMBERHOME/bin/pmemd.cuda -O -i heatR-NVT_PME_cut10.in \
+                         -o heatR-NVT_PME_cut10.out  \
+                         -p input.prmtop \
+                         -c mem_min_PME_cut10.rst \
+                         -r mem_heatR-NVT_PME_cut10.rst \
+                         -x mem_heatR-NVT_PME_cut10.nc \
+                         -ref mem_min_PME_cut10.rst \
+                         -e mem_heatR-NVT_PME_cut100.ene \
+                         -v mem_heatR-NVT_PME_cut10.vel
+
+$AMBERHOME/bin/ambpdb -p input.prmtop -c mem_heatR-NVT_PME_cut10.rst > mem_heatR-NVT_PME_cut10.pdb
+
+cd ..
+cd 3b_hold
+cp ../3a_heating/mem_heatR-NVT_PME_cut10.rst .
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold1.out  \
+                         -p input.prmtop \
+                         -c mem_heatR-NVT_PME_cut10.rst \
+                         -r hold1.rst \
+                         -x hold1.nc \
+                         -e hold1.ene \
+                         -v hold1.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold2.out  \
+                         -p input.prmtop \
+                         -c hold1.rst \
+                         -r hold2.rst \
+                         -x hold2.nc \
+                         -e hold2.ene \
+                         -v hold2.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold3.out  \
+                         -p input.prmtop \
+                         -c hold2.rst \
+                         -r hold3.rst \
+                         -x hold3.nc \
+                         -e hold3.ene \
+                         -v hold3.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold4.out  \
+                         -p input.prmtop \
+                         -c hold3.rst \
+                         -r hold4.rst \
+                         -x hold4.nc \
+                         -e hold4.ene \
+                         -v hold4.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold5.out  \
+                         -p input.prmtop \
+                         -c hold4.rst \
+                         -r hold5.rst \
+                         -x hold5.nc \
+                         -e hold5.ene \
+                         -v hold5.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold6.out  \
+                         -p input.prmtop \
+                         -c hold5.rst \
+                         -r hold6.rst \
+                         -x hold6.nc \
+                         -e hold6.ene \
+                         -v hold6.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold7.out  \
+                         -p input.prmtop \
+                         -c hold6.rst \
+                         -r hold7.rst \
+                         -x hold7.nc \
+                         -e hold7.ene \
+                         -v hold7.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold8.out  \
+                         -p input.prmtop \
+                         -c hold7.rst \
+                         -r hold8.rst \
+                         -x hold8.nc \
+                         -e hold8.ene \
+                         -v hold8.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold9.out  \
+                         -p input.prmtop \
+                         -c hold8.rst \
+                         -r hold9.rst \
+                         -x hold9.nc \
+                         -e hold9.ene \
+                         -v hold9.vel
+
+$AMBERHOME/bin/pmemd.cuda -O -i hold.in \
+                         -o hold10.out  \
+                         -p input.prmtop \
+                         -c hold9.rst \
+                         -r hold10.rst \
+                         -x hold10.nc \
+                         -e hold10.ene \
+                         -v hold10.vel
+
+$AMBERHOME/bin/ambpdb -p input.prmtop -c hold10.rst > hold10.pdb
+
+cd ..
+cd 4_production
+cp ../3b_hold/hold10.rst .
+
+$AMBERHOME/bin/pmemd.cuda -O -i MDeqNPT_PME_cut10.in \
+                         -o MDeqNPT_PME_cut10.out  \
+                         -p input.prmtop \
+                         -c hold10.rst \
+                         -r mem_MDeqNPT_PME_cut10.rst \
+                         -x mem_MDeqNPT_PME_cut10.nc \
+                         -e mem_MDeqNPT_PME_cut10.ene \
+                         -v MDeqNPT_PME_cut10.vel
+
+$AMBERHOME/bin/ambpdb -p input.prmtop -c mem_MDeqNPT_PME_cut10.rst > mem_MDeqNPT_PME_cut10.pdb
+
