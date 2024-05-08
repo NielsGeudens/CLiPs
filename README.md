@@ -1,5 +1,5 @@
 # README file 
-This repository is created to distribute supplementary MD data files related to the manuscript of Carabjac *et al.*, submitted to Biophysical Journal. 
+This repository is created to distribute supplementary Molecular Dynamics (MD) data files related to the manuscript of Carabjac *et al.*, submitted to Biophysical Journal. 
 
 ## Main Directory
 In the main directory, the coordinate files of viscosin (Viscosin_DPC_in.pdb) and the pre-equilibrated POPC membrane bilayer (POPCbilayer.pdb) can be found. 
